@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+#Sync files
+
 XXX=$(readlink -e "$(dirname $0)")
 
 TARGET="${1:-$(stat -c%m "$0")}"
