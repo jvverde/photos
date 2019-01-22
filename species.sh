@@ -16,12 +16,17 @@ do
 
 	[[ -d $DST ]] || mkdir -pv "$DST"
 
-	find "$DIR/$SPECIES" -type f |
+	find "$DIR" -type f |
 		while read -r FILE
 		do
 			FILENAME="$(basename -- "$FILE")"
 			EXT="${FILENAME##*.}"
 			NAME="${FILENAME%.*}"
-			ln -srv "${FILE}" "${DST}/${YEAR}-${NAME}-${MD}.${EXT}"
+      LINK="${DST}/${YEAR}-${NAME}-${MD}.${EXT}"
+			[[ -L $LINK && -e $LINK ]] || ln -sfrv "${FILE}" "$LINK"
 		done
-done < <(find "$SRC" -type d -ipath '*Freita*/Sel/*' ! -ipath '*flickr*'   -printf "%h|%f\n" | sort -t'|' -k2)
+done < <(
+  find "$SRC" -type d -ipath '*Freita*/Sel/*' ! -ipath '*flickr*'   -printf "%p|%f\n" | sort -t'|' -k2
+  find "$SRC" -type d -ipath '*Freita*/*' -exec test -e {}/Sel \; ! -ipath '*flickr*'   -printf "%p/Sel|%f\n" | sort -t'|' -k2  
+  find "$SRC" -type d -ipath '*Freita*/*' -exec test -e {}/sel \; ! -ipath '*flickr*'   -printf "%p/sel|%f\n" | sort -t'|' -k2  
+)
