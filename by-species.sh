@@ -22,7 +22,8 @@ find "$src" -mindepth 2 -type d -iname by-species -prune -print0|
         name=$(basename -- "$target/$file")
 				mkdir -pv "$dst"
         day="$(stat -c %y "$dir/$file" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
-				cp -aluTv --backup=t "$dir/$file" "$dst/${day}_$name";
+        filename="${day}_$(echo $name| perl -lape 's/^[0-9]{10}_//')"
+				cp -aluTv --backup=t "$dir/$file" "$dst/$filename";
 			done
 	done
 
