@@ -10,10 +10,9 @@ declare oldfile=""
 
 while read inum hlinks size file
 do
-  #echo "size=$size,lh=$hlinks,imum=$inum,file=$file"
 
   (( oldsize == size )) && cmp -s "$oldfile" "$file" && ln -vfT "$oldfile" "$file"
 
   oldsize=$size
   oldfile="$file"
-done < <(find "$dir" -type f -printf "%i %n %s %p\n" | sort -u -k3nr,3 -k2nr,2 -k1n,1)
+done < <(find "$dir" -type f -printf "%i %n %s %p\n" | sort -u -k3nr,3 -k2nr,2 -k1n,1 | sort -k3nr,3 -k2nr,2 -k1n,1 -k4)
