@@ -6,13 +6,18 @@ sdir="$(readlink -e "$(dirname $0)")"
 dir="${1:-.}"
 
 declare -i oldsize=0
+declare -i oldinum=0
 declare oldfile=""
 
 while read inum hlinks size file
 do
-
+  (( oldinum == inum )) && continue # file and oldfile are already hardlink of each other
   (( oldsize == size )) && cmp -s "$oldfile" "$file" && ln -vfT "$oldfile" "$file"
 
   oldsize=$size
   oldfile="$file"
-done < <(find "$dir" -type f -printf "%i %n %s %p\n" | sort -u -k3nr,3 -k2nr,2 -k1n,1 | sort -k3nr,3 -k2nr,2 -k1n,1 -k4)
+  oldinum=$inum
+done < <(
+  find "$dir" -type f -printf "%i %n %s %p\n" |
+  sort -k3nr,3 -k2nr,2 -k1n,1 -k4
+)

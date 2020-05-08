@@ -15,16 +15,16 @@ find "$src" -mindepth 2 -type d -iname by-species -prune -print0|
 		species=$(basename -- "$dir"); 
 		target="$src/by-species/$species"; 
 		mkdir -pv "$target"; 
-		find "$dir" -type f -printf "%P\n" |
+		find -L "$dir" -type f -printf "%P\n" |
 			while read -r file
 			do
 				dst=$(dirname -- "$target/$file")
         name=$(basename -- "$target/$file")
 				mkdir -pv "$dst"
-        day="$(stat -c %y "$dir/$file" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
+        srcfile="$(readlink -en -- "$dir/$file")"
+        day="$(stat -c %y "$srcfile" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
         filename="${day}_$(echo $name| perl -lape 's/^[0-9]{10}_//')"
         dstfile="$dst/$filename"
-        srcfile="$dir/$file"
         [[ -e $dstfile && $dstfile -ef $srcfile ]] && continue    # if they are the same file forget about it
 				ln -vfT "$srcfile" "$dstfile"
 			done
