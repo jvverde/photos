@@ -2,6 +2,7 @@
 declare -r sdir=$(readlink -e "$(dirname $0)")
 
 [[ $1 =~ - || -z $1 || -z $2 ]] && {
+	echo "Create hardlinks organized by data taken"
 	echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
 	exit 1
 }
