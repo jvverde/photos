@@ -1,33 +1,36 @@
 #!/usr/bin/env bash
-XXX=$(readlink -e "$(dirname $0)")
-
-src="$1" 
-
-[[ -d $src ]] || {
-	echo "Usage: $0 dirname"
-	exit 1
+die() {
+  echo -e "$@"
+  exit 1
 }
 
-find "$src" -mindepth 2 -type d -iname by-species -prune -print0|
-	xargs -r0I{} find "{}" -maxdepth 1 -mindepth 1 -type d -print0| 
-	while IFS= read -r -d $'\0' dir; 
-	do 
-		species=$(basename -- "$dir"); 
-		target="$src/by-species/$species"; 
-		mkdir -pv "$target"; 
-		find -L "$dir" -type f -printf "%P\n" |
-			while read -r file
-			do
-				dst=$(dirname -- "$target/$file")
-        name=$(basename -- "$target/$file")
-				mkdir -pv "$dst"
-        srcfile="$(readlink -en -- "$dir/$file")"
-        day="$(stat -c %y "$srcfile" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
-        filename="${day}_$(echo $name| perl -lape 's/^[0-9]{10}_//')"
-        dstfile="$dst/$filename"
-        [[ -e $dstfile && $dstfile -ef $srcfile ]] && continue    # if they are the same file forget about it
-				ln -vfT "$srcfile" "$dstfile"
-			done
-	done
+[[ $1 =~ -h || -z $1 || -z $2 ]] && {
+  echo "Create hardlinks from DST/by-species to SRC/.../by-species"
+  echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
+  echo -e "\nExample:\t$0 ../FOTOS/by-year/ ../FOTOS/by-species/"
+  exit 1
+}
 
-  
+declare -a src=("${@:1:$#-1}")
+declare dst="${@: -1}"
+
+[[ $dst =~ by-species/?$ ]] || die "dst must end with .../by-species/"
+
+while IFS= read -r srcdir
+do 
+	species=$(basename -- "$srcdir")
+  dstdir="$dst/$species"
+  [[ $srcdir == $dstdir ]] && continue
+	while read -r file
+	do
+    [[ $file =~ by-species ]] && continue #avoid by-species inside by-species
+    from="$srcdir/$file"
+    name="$(basename -- "$file")"
+    relpath="$(dirname -- "$file")"
+    day="$(stat -c %y "$from" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
+    to="$dstdir/$relpath/${day}_$(echo $name| perl -lape 's/^[0-9]{10}_//')"
+		mkdir -pv "$(dirname -- "$to")"
+    [[ $from -ef $to ]] && continue    # if they are the same file forget about it
+		ln -vbfT "$from" "$to"
+	done < <( find "$srcdir" -type f -printf "%P\n")
+done < <(find "${src[@]}" -type d -ipath '*by-species/*' ! -iname 'by-species' -prune -print)

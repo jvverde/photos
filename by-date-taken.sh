@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 declare -r sdir=$(readlink -e "$(dirname $0)")
 
-[[ $1 =~ -h || -z $1 || -z $2 ]] && {
+[[ $1 =~ ^-h || -z $1 || -z $2 ]] && {
 	echo "Create hardlinks organized by data taken"
 	echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
 	exit 1
@@ -25,7 +25,7 @@ do
 		to="$dst/$ymd/$h/$prefix.$name"
 		mkdir -pv "$(dirname -- "$to")"
 		[[ $from -ef $to ]] && continue
-    [[ -e $to ]] && to="$dst/$ymd/$h/$prefix.${MD}.$name"
+    [[ -e $to ]] && to="$dst/$ymd/$h/$prefix.${MD//\//-}.$name"
     ln -vbfT "$from" "$to"
 	done < <(exiftool -d "%Y/%m/%d %H-%M-%S" -T -DateTimeOriginal -FileModifyDate -sort "$file")
 done < <(find "${src[@]}" -type f -print)

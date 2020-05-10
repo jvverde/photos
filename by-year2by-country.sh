@@ -1,15 +1,25 @@
 #!/usr/bin/env bash
-#Sync files
+die() {
+  echo -e "$@"
+  exit 1
+}
 
 [[ $1 =~ -h || -z $1 || -z $2 ]] && {
   echo "Create hardlinks from DST/by-country/country-year to SRC/by-year/year/country"
   echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
+  echo -e "\nExample:\t$0 ../FOTOS/by-year/ ../FOTOS/by-country/"
   exit 1
 }
 
 declare -a src=("${@:1:$#-1}")
 declare dst="${@: -1}"
-[[ $dst =~ by-country/?$ ]] || dst="$dst/by-country"
+
+[[ $dst =~ by-country/?$ ]] || die "dst must end with .../by-country/"
+
+for s in "${src[@]}"
+do
+  [[ $s =~ by-year/?$ ]] || die "Each src must end with .../by-year/"
+done
 
 [[ -d $dst ]] || mkdir -pv "$dst"
 
