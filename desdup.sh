@@ -20,5 +20,5 @@ do
   oldinum=$inum
 done < <(
   find "$dir" -type f ${@+$@} -printf "%i %n %s %p\n" |
-  sort -k3n,3 -k2nr,2 -k1n,1 -k4
+  sort -k3nr,3 -k2nr,2 -k1n,1 -k4
 )
