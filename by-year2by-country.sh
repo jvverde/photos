@@ -7,7 +7,7 @@ die() {
 [[ $1 =~ -h || -z $1 || -z $2 ]] && {
   echo "Create hardlinks from DST/by-country/country-year to SRC/by-year/year/country"
   echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
-  echo -e "\nExample:\t$0 ../FOTOS/by-year/ ../FOTOS/by-country/"
+  echo -e "\nExample:\t$0 SRC/by-year/ DST/by-country/"
   exit 1
 }
 
