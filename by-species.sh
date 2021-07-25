@@ -18,19 +18,19 @@ declare dst="${@: -1}"
 
 while IFS= read -r srcdir
 do 
-	species=$(basename -- "$srcdir")
-  dstdir="$dst/$species"
-  [[ $srcdir == $dstdir ]] && continue
+	species="$(basename -- "$(dirname -- "$srcdir")")"
+	dstdir="$dst/$species"
+	[[ $srcdir == $dstdir ]] && continue
 	while read -r file
 	do
-    [[ $file =~ by-species ]] && continue #avoid by-species inside by-species
-    from="$srcdir/$file"
-    name="$(basename -- "$file")"
-    relpath="$(dirname -- "$file")"
-    day="$(stat -c %y "$from" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
-    to="$dstdir/$relpath/${day}_$(echo $name| perl -lape 's/^[0-9]{10}_//')"
+		[[ $file =~ by-species ]] && continue #avoid by-species inside by-species
+		from="$srcdir/$file"
+		name="$(basename -- "$file")"
+		relpath="$(dirname -- "$file")"
+		day="$(stat -c %y "$from" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
+		to="$dstdir/$relpath/${day}_$(echo $name| perl -lape 's/^[0-9]{10}_//')"
 		mkdir -pv "$(dirname -- "$to")"
-    [[ $from -ef $to ]] && continue    # if they are the same file forget about it
+		[[ $from -ef $to ]] && continue    # if they are the same file forget about it
 		ln -vbfT "$from" "$to"
 	done < <( find "$srcdir" -type f -printf "%P\n")
-done < <(find "${src[@]}" -type d -ipath '*by-species/*' ! -iname 'by-species' -prune -print)
+done < <(find "${src[@]}" -type d -ipath '*/by-species/**/sel' -prune -print)
