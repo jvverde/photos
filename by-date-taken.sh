@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 declare -r sdir=$(readlink -e "$(dirname $0)")
 
+exists() {
+	type "$1" >/dev/null 2>&1;
+}
+
+declare OS="$(uname -o |tr '[:upper:]' '[:lower:]')"
+
 [[ $1 =~ ^-h || -z $1 || -z $2 ]] && {
 	echo "Create hardlinks organized by data taken"
 	echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
@@ -12,6 +18,8 @@ declare -r dst="${@: -1}"
 
 while IFS= read file
 do
+	declare fullname="$file"
+	[[ $OS == cygwin ]] && exists cygpath && fullname="$(cygpath -w "$file")"
 	while IFS=$'\t' read -r DT MD
 	do
 		[[ $DT == - ]] && continue
@@ -27,5 +35,5 @@ do
 		[[ $from -ef $to ]] && continue
     [[ -e $to ]] && to="$dst/$ymd/$h/$prefix.${MD//\//-}.$name"
     ln -vbfT "$from" "$to"
-	done < <(exiftool -d "%Y/%m/%d %H-%M-%S" -T -DateTimeOriginal -FileModifyDate -sort "$file")
+	done < <(exiftool -d "%Y/%m/%d %H-%M-%S" -T -DateTimeOriginal -FileModifyDate -sort "$fullname")
 done < <(find "${src[@]}" -type f -print)

@@ -4,6 +4,13 @@ die() {
   exit 1
 }
 
+declare OS="$(uname -o |tr '[:upper:]' '[:lower:]')"
+
+exists() {
+	type "$1" >/dev/null 2>&1;
+}
+
+
 [[ $1 =~ -h || -z $1 || -z $2 ]] && {
   echo "Create hardlinks from DST/by-species to SRC/.../by-species"
   echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
@@ -18,7 +25,7 @@ declare dst="${@: -1}"
 
 while IFS= read -r srcdir
 do 
-	species="$(basename -- "$(dirname -- "$srcdir")")"
+	species="$(basename -- "$srcdir")"
 	dstdir="$dst/$species"
 	[[ $srcdir == $dstdir ]] && continue
 	while read -r file
@@ -27,10 +34,13 @@ do
 		from="$srcdir/$file"
 		name="$(basename -- "$file")"
 		relpath="$(dirname -- "$file")"
-		day="$(stat -c %y "$from" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
+		fullname="$from"
+		[[ $OS == cygwin ]] && exists cygpath && fullname="$(cygpath -w "$fullname")"
+		#day="$(stat -c %y "$from" |perl -lape 's/\d\d(\d\d)-(\d\d)-(\d\d) (\d\d):(\d\d).+/$1$2$3$4$5/')"
+		read -r day <<< $(exiftool -d "%Y-%m-%dT%H-%M-%S" -T -DateTimeOriginal -sort "$fullname" | sed 's/\r//')
 		to="$dstdir/$relpath/${day}_$(echo $name| perl -lape 's/^[0-9]{10}_//')"
 		mkdir -pv "$(dirname -- "$to")"
 		[[ $from -ef $to ]] && continue    # if they are the same file forget about it
 		ln -vbfT "$from" "$to"
 	done < <( find "$srcdir" -type f -printf "%P\n")
-done < <(find "${src[@]}" -type d -ipath '*/by-species/**/sel' -prune -print)
+done < <(find "${src[@]}" -type d -ipath '*/by-species/**' -prune -print)
