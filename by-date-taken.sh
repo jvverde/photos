@@ -30,7 +30,8 @@ do
 		hms=${DT#* }
 		h=${hms%%-*}
 		prefix="$hms"
-		to="$dst/$ymd/$h/$prefix.$name"
+		#to="$dst/$ymd/$h/$prefix.$name"
+		to="$dst/$ymd/$prefix.$name"
 		mkdir -pv "$(dirname -- "$to")"
 		[[ $from -ef $to ]] && continue
     [[ -e $to ]] && to="$dst/$ymd/$h/$prefix.${MD//\//-}.$name"
