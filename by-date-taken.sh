@@ -34,7 +34,7 @@ do
 		to="$dst/$ymd/$prefix.$name"
 		mkdir -pv "$(dirname -- "$to")"
 		[[ $from -ef $to ]] && continue
-    [[ -e $to ]] && to="$dst/$ymd/$h/$prefix.${MD//\//-}.$name"
-    ln -vbfT "$from" "$to"
+		[[ -e $to ]] && to="$dst/$ymd/$prefix.${MD//\//-}.$name"
+		ln -vbfT "$from" "$to"
 	done < <(exiftool -d "%Y/%m/%d %H-%M-%S" -T -DateTimeOriginal -FileModifyDate -sort "$fullname")
 done < <(find "${src[@]}" -type f -print)
