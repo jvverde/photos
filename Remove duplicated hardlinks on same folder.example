@@ -1,0 +1,2 @@
+#Remove duplicated hardlinks on same folder
+#find DIR -type f -links +1 -iname '[0-9]*' -printf "%f|%h\n"|while IFS='|' read file dir; do find "$dir" ! -iname "$file" -samefile "$dir/$file" -print; done
