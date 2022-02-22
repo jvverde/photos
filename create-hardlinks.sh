@@ -18,14 +18,14 @@ fi
 
 [[ $1 =~ -h || -z $1 || -z $2 ]] && {
   echo "Create hardlinks from SRC to DST"
-  echo -e "Usage:\n\t$0 src dst"
+  echo -e "Usage:\n\t$0 [--dry-run] src dst"
   exit 1
 }
 
 src="$1"
 dst="$2"
 
-echo rsync --dry-run -aiH --ignore-existing "$src/" "$dst/" | grep '>f++++' | cut -d' ' -f2- |
+rsync --dry-run -aiH --ignore-existing "$src/" "$dst/" | grep '>f++++' | cut -d' ' -f2- |
 while read filename
 do
 	dir="$(dirname -- "$filename")"
