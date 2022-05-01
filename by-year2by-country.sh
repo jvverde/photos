@@ -38,4 +38,4 @@ do
     mkdir -pv "$(dirname -- "$to")"
     ln -vbfT "$from" "$to"
   done < <(find "$dir" -type f ! -path '*/.*' -printf "%P\n")
-done < <(find "$src" -ipath '*/by-year/[0-9][0-9][0-9][0-9]/*' -prune -print)
+done < <(find "$src" -ipath '*/by-year/[1-2][0-9][0-9][0-9]/*' -prune -print)
