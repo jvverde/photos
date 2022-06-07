@@ -14,7 +14,8 @@ do
   original="$dir/original"
   [[ -d $original ]] || mkdir -pv "$original"
   filename="${selected##*/}" 
-  file="${filename%.???}"
+  file="${filename%.???}" #remove extension
+  file="${file%%-NEF*}" #remove any -NEF siffix (from DxO Pure Raw)
   #file="${file%[a-zA-Z]}"
   #find "$dir" -maxdepth 1 -name "*$file.*" -exec mv -vf "{}" "$original"/ ';' #don't use this because the bug "same file"
   #echo "filename=$filename (file=$file)"
