@@ -6,10 +6,18 @@ die() {
 
 [[ $1 =~ -h || -z $1 || -z $2 ]] && {
   echo "Create hardlinks from DST/by-country/country-year to SRC/by-year/year/country"
-  echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
+  echo -e "Usage:\n\t$0 [-n] src1 [src2[...[srcN]]] dst"
   echo -e "\nExample:\t$0 SRC/by-year/ DST/by-country/"
   exit 1
 }
+shopt -s expand_aliases
+
+if [[ $1 =~ -n ]]
+then
+  shift
+  alias mkdir='echo mkdir'
+  alias ln='echo ln'
+fi
 
 declare -a src=("${@:1:$#-1}")
 declare dst="${@: -1}"
@@ -38,4 +46,4 @@ do
     mkdir -pv "$(dirname -- "$to")"
     ln -vbfT "$from" "$to"
   done < <(find "$dir" -type f ! -path '*/.*' -printf "%P\n")
-done < <(find "$src" -ipath '*/by-year/[1-2][0-9][0-9][0-9]/*' -prune -print)
+done < <(find "$src" -ipath '*/by-year/[1-2][0-9][0-9][0-9]/*' -prune ! -iname '*by-*' -print)
