@@ -31,10 +31,11 @@ do
 		h=${hms%%-*}
 		prefix="$hms"
 		#to="$dst/$ymd/$h/$prefix.$name"
-		to="$dst/$ymd/$prefix.$name"
+    base=${name//????-??-??T??-??-??_/}
+		to="$dst/$ymd/$prefix.$base"
 		mkdir -pv "$(dirname -- "$to")"
 		[[ $from -ef $to ]] && continue
-		[[ -e $to ]] && to="$dst/$ymd/$prefix.${MD//\//-}.$name"
+		[[ -e $to ]] && to="$dst/$ymd/$prefix.${MD//\//-}.$base"
 		ln -vbfT "$from" "$to"
 	done < <(exiftool -d "%Y/%m/%d %H-%M-%S" -T -DateTimeOriginal -FileModifyDate -sort "$fullname")
 done < <(find "${src[@]}" -type f -print)
