@@ -19,5 +19,5 @@ do
   #file="${file%[a-zA-Z]}"
   #find "$dir" -maxdepth 1 -name "*$file.*" -exec mv -vf "{}" "$original"/ ';' #don't use this because the bug "same file"
   #echo "filename=$filename (file=$file)"
-  find "$dir" -maxdepth 1 -name "*$file.*" -exec mv -v "{}" "$original"/ ';'
+  find "$dir" -maxdepth 1 -name "*$file.*" -exec mv -vb "{}" "$original"/ ';'
 done < <(find "$SRC" -ipath '*/sel/*.jpg')
