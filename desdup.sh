@@ -3,8 +3,25 @@
 
 sdir="$(readlink -e "$(dirname $0)")"
 
-dir="${1:-.}"
-shift
+#dir="${1:-.}"
+#shift
+declare -a foptions=()
+
+while [[ ${1:-} =~ ^- ]]
+do
+  key="$1" && shift
+  case "$key" in
+    -- )
+      while [[ ${1:-} =~ ^- ]]
+      do
+        foptions+=( "$1" )
+        shift
+      done
+    ;;
+  esac
+done
+
+declare -a src=("${@:-.}")
 
 declare -i oldsize=0
 declare -i oldinum=0
@@ -19,6 +36,7 @@ do
   oldfile="$file"
   oldinum=$inum
 done < <(
-  find "$dir" -type f ${@+$@} -printf "%i %n %s %p\n" |
+#  find "$dir" -type f ${@+$@} -printf "%i %n %s %p\n" |
+  find "${src[@]}" -type f ${foptions[@]+"${foptions[@]}"} -printf "%i %n %s %p\n" |
   sort -k3nr,3 -k2nr,2 -k1n,1 -k4
 )
