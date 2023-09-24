@@ -23,6 +23,7 @@ do
 	while IFS=$'\t' read -r DT MD
 	do
 		[[ $DT == - ]] && continue
+		MD="${MD//$'\r'}" #Sometimes we need this
 		declare name="$(basename -- "$file")"
 		declare parent="$(dirname -- "$file")"
 		from="$parent/$name"
@@ -38,4 +39,6 @@ do
 		[[ -e $to ]] && to="$dst/$ymd/$prefix.${MD//\//-}.$base"
 		ln -vbfT "$from" "$to"
 	done < <(exiftool -d "%Y/%m/%d %H-%M-%S" -T -DateTimeOriginal -FileModifyDate -sort "$fullname")
-done < <(find "${src[@]}" -type f -print)
+done < <(find "${src[@]}" -type f -printf "%i %p\n" | grep -vFf <(find "$dst" -type f -printf "%i\n") |cut -d' ' -f2-)
+
+#find //cygdrive/p/* ! -ipath '*$RECYCLE.BIN/*' -type f -printf "%i %p\n" |grep -iFf <(echo -ne ".jpg\n.nef") | grep -vFf <(find /cygdrive/e/.by-date/ -type f -printf "%i\n") |cut -d' ' -f2-|xargs -rI{} /cygdrive/e/Tools/by-date-taken.sh '{}' //cygdrive/p/.by-date/
