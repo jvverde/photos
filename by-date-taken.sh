@@ -7,7 +7,7 @@ exists() {
 
 declare OS="$(uname -o |tr '[:upper:]' '[:lower:]')"
 
-[[ $1 =~ ^-h || -z $1 ]] && {
+[[ $1 =~ ^-h || -z $1 || -z $2 ]] && {
 	echo "Create hardlinks organized by data taken"
 	echo -e "Usage:\n\t$0 src1 [src2[...[srcN]]] dst"
 	exit 1
