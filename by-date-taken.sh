@@ -39,6 +39,9 @@ do
 		[[ -e $to ]] && to="$dst/$ymd/$prefix.${MD//\//-}.$base"
 		ln -vbfT "$from" "$to"
 	done < <(exiftool -d "%Y/%m/%d %H-%M-%S" -T -DateTimeOriginal -FileModifyDate -sort "$fullname")
-done < <(find "${src[@]}" -type f -printf "%i %p\0" | grep -zZvFf <(find "$dst" -type f -printf "%i\n") |cut -zd' ' -f2-|xargs -r0I{} file -i -- "{}" | sed -n 's!: image/[^:]*$!!p')
+done < <(
+	find "${src[@]}" -type f -printf "%i %p\0" | grep -zZvFf <(find "$dst" -type f -printf "%i\n") |cut -zd' ' -f2-|
+		xargs -r0I{} file -i -- "{}" | sed -nE 's!:\s+(video|image)/[^:]+$!!p'
+)
 
 #find //cygdrive/p/* ! -ipath '*$RECYCLE.BIN/*' -type f -printf "%i %p\n" |grep -iFf <(echo -ne ".jpg\n.nef") | grep -vFf <(find /cygdrive/e/.by-date/ -type f -printf "%i\n") |cut -d' ' -f2-|xargs -rI{} /cygdrive/e/Tools/by-date-taken.sh '{}' //cygdrive/p/.by-date/
