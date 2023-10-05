@@ -16,6 +16,8 @@ declare OS="$(uname -o |tr '[:upper:]' '[:lower:]')"
 declare -a src=("${@:1:$#-1}")
 declare -r dst="${@: -1}"
 
+[[ -d $dst ]] || mkdir -pv "$dst"
+
 while IFS= read file
 do
 	declare fullname="$file"
